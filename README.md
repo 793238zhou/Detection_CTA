@@ -2,6 +2,8 @@
 # YOLOv8 with Data Migration and Catastrophic Forgetting Reduction
 
 代码在master分支里面
+
+
 This repository contains a modified version of YOLOv8, focusing on enhancing parameter updates with data migration techniques and mitigating catastrophic forgetting. The key modifications are made in the training process and in the adaptation layers of the model. This project is designed to improve the model's ability to retain learned information across different tasks while maintaining high accuracy.
 
 ## Key Modifications
