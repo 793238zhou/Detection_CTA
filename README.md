@@ -29,13 +29,3 @@ This repository contains a modified version of YOLOv8, focusing on enhancing par
 ### 5. **KL Divergence for Data Shift Measurement**
    - The forward pass in `nn.task.py` includes the calculation of KL divergence, which helps in determining the extent of data distribution shift between tasks.
    - This feature allows the model to adjust its parameters more effectively by measuring how much the data has changed over time.
-
-   **KL Divergence Code**:
-   ```python
-   def kl_divergence(self, current_features, past_features):
-       current_features = current_features.view(current_features.size(0), -1)  # Flatten
-       past_features = past_features.view(past_features.size(0), -1)  # Flatten
-       p = torch.nn.functional.softmax(current_features, dim=-1)
-       q = torch.nn.functional.softmax(past_features, dim=-1)
-       kl = torch.sum(p * torch.log(p / (q + 1e-8)), dim=-1).mean()  # Add small epsilon to prevent NaN
-       return kl
