@@ -1,85 +1,79 @@
-# Ultralytics Docs
+# Detection_CTA
+# YOLOv8 with Data Migration and Catastrophic Forgetting Reduction
 
-Ultralytics Docs are deployed to [https://docs.ultralytics.com](https://docs.ultralytics.com).
+代码在master分支里面
 
-### Install Ultralytics package
 
-To install the ultralytics package in developer mode, you will need to have Git and Python 3 installed on your system.
-Then, follow these steps:
 
-1. Clone the ultralytics repository to your local machine using Git:
+该仓库包含了修改版的 YOLOv8，重点提升了通过数据迁移技术进行的参数更新，并减轻了灾难性遗忘问题。主要的修改体现在训练过程和模型的适配器层。这个项目旨在提高模型在不同任务间保持高精度的同时，也能够保留已学习的信息。
 
-```bash
-git clone https://github.com/ultralytics/ultralytics.git
-```
+## 主要修改
 
-2. Navigate to the root directory of the repository:
+### 1. **基于数据迁移的参数更新**
+   - 在 `train.py` 文件中的训练函数中实现。
+   - 在训练过程中应用实时的参数更新，以便在不忘记先前学习任务的情况下提高学习效率。
 
-```bash
-cd ultralytics
-```
+   **位置**: `train.py`
 
-3. Install the package in developer mode using pip:
+### 2. **灾难性遗忘的减少**
+   - 引入策略以缓解增量学习中的灾难性遗忘，确保模型在学习新任务时保持对旧任务的良好表现。
 
-```bash
-pip install -e '.[dev]'
-```
+### 3. **适配器模块的修改**
+   - 修改内容位于 `nn.modules.py`。
+   - 在网络架构中增加了新的并行适配器，以增强模型在处理不同任务时的灵活性。
 
-This will install the ultralytics package and its dependencies in developer mode, allowing you to make changes to the
-package code and have them reflected immediately in your Python environment.
+   **位置**: `nn.modules.py`，第232-390行
 
-Note that you may need to use the pip3 command instead of pip if you have multiple versions of Python installed on your
-system.
+### 4. **模型初始化的修改**
+   - 在 `nn.task.py`中进行了模型初始化的调整。
+   - 在前向传播过程中增加了KL散度计算，用于衡量不同任务间的数据分布偏移。
 
-### Building and Serving Locally
+   **位置**: `nn.task.py`，第20-233行
 
-The `mkdocs serve` command is used to build and serve a local version of the MkDocs documentation site. It is typically
-used during the development and testing phase of a documentation project.
+### 5. **用于衡量数据分布偏移的KL散度**
+   - `nn.task.py`中的前向传播过程包括KL散度计算，这有助于确定任务间数据分布的变化程度。
+   - 这个功能使得模型能够通过测量数据随时间的变化来更有效地调整其参数。
 
-```bash
-mkdocs serve
-```
+### 6. **前向传播的修改**
+   - 在 `yolo.engine.trainer`中增加了前向传播的参数。
+   - 在前向传播过程中增加了KL散度计算，用于衡量不同任务间的数据分布偏移。
 
-Here is a breakdown of what this command does:
+   **位置**: `yolo.engine.trainer`，第320-327行
+### 7. **模型初始化的修改**
+   - 在 `yolo.v8.detect.train.py`中进行了模型初始化的调整。
+   - 修改了get_model函数的使用方法。
 
-- `mkdocs`: This is the command-line interface (CLI) for the MkDocs static site generator. It is used to build and serve
-  MkDocs sites.
-- `serve`: This is a subcommand of the `mkdocs` CLI that tells it to build and serve the documentation site locally.
-- `-a`: This flag specifies the hostname and port number to bind the server to. The default value is `localhost:8000`.
-- `-t`: This flag specifies the theme to use for the documentation site. The default value is `mkdocs`.
-- `-s`: This flag tells the `serve` command to serve the site in silent mode, which means it will not display any log
-  messages or progress updates.
-  When you run the `mkdocs serve` command, it will build the documentation site using the files in the `docs/` directory
-  and serve it at the specified hostname and port number. You can then view the site by going to the URL in your web
-  browser.
+   **位置**: `yolo.v8.detect.train.py`，第61-66行
 
-While the site is being served, you can make changes to the documentation files and see them reflected in the live site
-immediately. This is useful for testing and debugging your documentation before deploying it to a live server.
 
-To stop the serve command and terminate the local server, you can use the `CTRL+C` keyboard shortcut.
+# YOLOv8 with Data Migration and Catastrophic Forgetting Reduction
 
-### Deploying Your Documentation Site
 
-To deploy your MkDocs documentation site, you will need to choose a hosting provider and a deployment method. Some
-popular options include GitHub Pages, GitLab Pages, and Amazon S3.
+This repository contains a modified version of YOLOv8, focusing on enhancing parameter updates with data migration techniques and mitigating catastrophic forgetting. The key modifications are made in the training process and in the adaptation layers of the model. This project is designed to improve the model's ability to retain learned information across different tasks while maintaining high accuracy.
 
-Before you can deploy your site, you will need to configure your `mkdocs.yml` file to specify the remote host and any
-other necessary deployment settings.
+## Key Modifications
 
-Once you have configured your `mkdocs.yml` file, you can use the `mkdocs deploy` command to build and deploy your site.
-This command will build the documentation site using the files in the `docs/` directory and the specified configuration
-file and theme, and then deploy the site to the specified remote host.
+### 1. **Data Migration-Based Parameter Updates**
+   - Implemented in the training function located in `train.py`.
+   - Real-time parameter updates are applied to the model during training to facilitate more efficient learning without forgetting previously learned tasks.
+   
+   **Location**: `train.py`
 
-For example, to deploy your site to GitHub Pages using the gh-deploy plugin, you can use the following command:
+### 2. **Reduction of Catastrophic Forgetting**
+   - Introduced strategies to mitigate catastrophic forgetting during incremental learning, ensuring the model maintains performance on old tasks while learning new ones.
 
-```bash
-mkdocs gh-deploy
-```
+### 3. **Adapter Module Modifications**
+   - Changes made in `nn.modules.py` (lines 232-390).
+   - Added new parallel adapters to the network architecture to enhance the model's flexibility in handling different tasks.
+   
+   **Location**: `nn.modules.py`, lines 232-390
 
-If you are using GitHub Pages, you can set a custom domain for your documentation site by going to the "Settings" page
-for your repository and updating the "Custom domain" field in the "GitHub Pages" section.
+### 4. **Model Initialization Modifications**
+   - Adjustments in model initialization are made in `nn.task.py` (lines 20-233).
+   - KL divergence is calculated in the forward pass to measure the shift in data distribution across different tasks.
 
-![196814117-fc16e711-d2be-4722-9536-b7c6d78fd167](https://user-images.githubusercontent.com/26833433/210150206-9e86dcd7-10af-43e4-9eb2-9518b3799eac.png)
+   **Location**: `nn.task.py`, lines 20-233
 
-For more information on deploying your MkDocs documentation site, see
-the [MkDocs documentation](https://www.mkdocs.org/user-guide/deploying-your-docs/).
+### 5. **KL Divergence for Data Shift Measurement**
+   - The forward pass in `nn.task.py` includes the calculation of KL divergence, which helps in determining the extent of data distribution shift between tasks.
+   - This feature allows the model to adjust its parameters more effectively by measuring how much the data has changed over time.
